@@ -194,6 +194,16 @@ export type WaBusiness = {
   LANGUAGE: string;
 };
 
+export type MetaBusiness = {
+  TOKEN_WEBHOOK: string;
+  URL: string;
+  VERSION: string;
+  LANGUAGE: string;
+  WHATSAPP_ENABLED: boolean;
+  FACEBOOK_ENABLED: boolean;
+  INSTAGRAM_ENABLED: boolean;
+};
+
 export type EventsWebhook = {
   APPLICATION_STARTUP: boolean;
   INSTANCE_CREATE: boolean;
@@ -403,6 +413,7 @@ export interface Env {
   KAFKA: Kafka;
   WEBSOCKET: Websocket;
   WA_BUSINESS: WaBusiness;
+  META_BUSINESS: MetaBusiness;
   LOG: Log;
   DEL_INSTANCE: DelInstance;
   DEL_TEMP_INSTANCES: boolean;
@@ -729,6 +740,15 @@ export class ConfigService {
         URL: process.env.WA_BUSINESS_URL || 'https://graph.facebook.com',
         VERSION: process.env.WA_BUSINESS_VERSION || 'v18.0',
         LANGUAGE: process.env.WA_BUSINESS_LANGUAGE || 'en',
+      },
+      META_BUSINESS: {
+        TOKEN_WEBHOOK: process.env.META_BUSINESS_TOKEN_WEBHOOK || 'evolution',
+        URL: process.env.META_BUSINESS_URL || 'https://graph.facebook.com',
+        VERSION: process.env.META_BUSINESS_VERSION || 'v20.0',
+        LANGUAGE: process.env.META_BUSINESS_LANGUAGE || 'en',
+        WHATSAPP_ENABLED: process.env.META_BUSINESS_WHATSAPP_ENABLED === 'true',
+        FACEBOOK_ENABLED: process.env.META_BUSINESS_FACEBOOK_ENABLED === 'true',
+        INSTAGRAM_ENABLED: process.env.META_BUSINESS_INSTAGRAM_ENABLED === 'true',
       },
       LOG: {
         LEVEL:

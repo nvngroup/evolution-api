@@ -1,5 +1,6 @@
 import { PrismaRepository } from '@api/repository/repository.service';
 import { WAMonitoringService } from '@api/services/monitor.service';
+import { Integration } from '@api/types/wa.types';
 import { Logger } from '@config/logger.config';
 import axios from 'axios';
 
@@ -52,6 +53,84 @@ export class MetaController extends ChannelController implements ChannelControll
 
         if (!instance) {
           this.logger.error('WebhookService -> receiveWebhookMeta -> instance not found');
+          return {
+            status: 'success',
+          };
+        }
+
+        await this.waMonitor.waInstances[instance.name].connectToWhatsapp(data);
+
+        return {
+          status: 'success',
+        };
+      });
+    }
+
+    return {
+      status: 'success',
+    };
+  }
+
+  public async receiveFacebookWebhook(data: any) {
+    if (data.object === 'page') {
+      data.entry?.forEach(async (entry: any) => {
+        const pageId = entry.id;
+
+        if (!pageId) {
+          this.logger.error('FacebookWebhook -> pageId not found');
+          return {
+            status: 'success',
+          };
+        }
+
+        const instance = await this.prismaRepository.instance.findFirst({
+          where: {
+            number: pageId,
+            integration: Integration.FACEBOOK_BUSINESS,
+          },
+        });
+
+        if (!instance) {
+          this.logger.error('FacebookWebhook -> instance not found');
+          return {
+            status: 'success',
+          };
+        }
+
+        await this.waMonitor.waInstances[instance.name].connectToWhatsapp(data);
+
+        return {
+          status: 'success',
+        };
+      });
+    }
+
+    return {
+      status: 'success',
+    };
+  }
+
+  public async receiveInstagramWebhook(data: any) {
+    if (data.object === 'instagram') {
+      data.entry?.forEach(async (entry: any) => {
+        const instagramId = entry.id;
+
+        if (!instagramId) {
+          this.logger.error('InstagramWebhook -> instagramId not found');
+          return {
+            status: 'success',
+          };
+        }
+
+        const instance = await this.prismaRepository.instance.findFirst({
+          where: {
+            number: instagramId,
+            integration: Integration.INSTAGRAM_BUSINESS,
+          },
+        });
+
+        if (!instance) {
+          this.logger.error('InstagramWebhook -> instance not found');
           return {
             status: 'success',
           };
