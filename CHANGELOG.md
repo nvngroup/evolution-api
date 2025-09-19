@@ -2,6 +2,17 @@
 
 ### Features
 
+* **Facebook and Instagram Business API Integration**: Complete multi-platform Meta Business API support
+  - Added MetaBusiness configuration type with platform-specific enablement flags
+  - Created FacebookBusinessStartupService for Facebook Page messaging integration
+  - Created InstagramBusinessStartupService for Instagram Direct messaging integration
+  - Added FACEBOOK_BUSINESS and INSTAGRAM_BUSINESS integration types
+  - New webhook endpoints: `/webhook/facebook` and `/webhook/instagram`
+  - Extended MetaController with platform-specific webhook handlers
+  - Unified Meta Business API structure following existing WhatsApp Business patterns
+  - Environment variables for configurable platform enablement
+  - Support for Facebook Page messaging, Instagram Direct messages, and story interactions
+
 * **Kafka Integration**: Added Apache Kafka event integration for real-time event streaming
   - New Kafka controller, router, and schema for event publishing
   - Support for instance-specific and global event topics
@@ -58,6 +69,11 @@
   - Optimized message creation workflow with proper field validation
 
 ### Environment Variables
+
+* Added comprehensive Meta Business API configuration options:
+  - `META_BUSINESS_URL`, `META_BUSINESS_VERSION`, `META_BUSINESS_TOKEN_WEBHOOK`
+  - `META_BUSINESS_WHATSAPP_ENABLED`, `META_BUSINESS_FACEBOOK_ENABLED`, `META_BUSINESS_INSTAGRAM_ENABLED`
+  - Configurable platform enablement for selective integration activation
 
 * Added comprehensive Kafka configuration options:
   - `KAFKA_ENABLED`, `KAFKA_CLIENT_ID`, `KAFKA_BROKERS`
