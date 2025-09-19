@@ -1,4 +1,4 @@
-import { proto, WAPresence } from 'baileys';
+import { WAPresence, waproto as proto } from '@nvngroup/pitu';
 
 export class Quoted {
   key: proto.IMessageKey;

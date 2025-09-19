@@ -1,6 +1,6 @@
 import { IntegrationDto } from '@api/integrations/integration.dto';
+import { WAPresence } from '@nvngroup/pitu';
 import { JsonValue } from '@prisma/client/runtime/library';
-import { WAPresence } from 'baileys';
 
 export class InstanceDto extends IntegrationDto {
   instanceName: string;

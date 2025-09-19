@@ -20,11 +20,11 @@ import ChatwootClient, {
   inbox,
 } from '@figuro/chatwoot-sdk';
 import { request as chatwootRequest } from '@figuro/chatwoot-sdk/dist/core/request';
+import { waproto as proto } from '@nvngroup/pitu';
 import { Chatwoot as ChatwootModel, Contact as ContactModel, Message as MessageModel } from '@prisma/client';
 import i18next from '@utils/i18n';
 import { sendTelemetry } from '@utils/sendTelemetry';
 import axios from 'axios';
-import { proto } from 'baileys';
 import dayjs from 'dayjs';
 import FormData from 'form-data';
 import { Jimp, JimpMime } from 'jimp';
@@ -386,21 +386,21 @@ export class ChatwootService {
       let tagId = tagData?.id;
       const taggingsCount = tagData?.taggings_count || 0;
 
-      const sqlTag = `INSERT INTO tags (name, taggings_count) 
-                      VALUES ($1, $2) 
-                      ON CONFLICT (name) 
-                      DO UPDATE SET taggings_count = tags.taggings_count + 1 
+      const sqlTag = `INSERT INTO tags (name, taggings_count)
+                      VALUES ($1, $2)
+                      ON CONFLICT (name)
+                      DO UPDATE SET taggings_count = tags.taggings_count + 1
                       RETURNING id`;
 
       tagId = (await this.pgClient.query(sqlTag, [nameInbox, taggingsCount + 1]))?.rows[0]?.id;
 
-      const sqlCheckTagging = `SELECT 1 FROM taggings 
+      const sqlCheckTagging = `SELECT 1 FROM taggings
                                WHERE tag_id = $1 AND taggable_type = 'Contact' AND taggable_id = $2 AND context = 'labels' LIMIT 1`;
 
       const taggingExists = (await this.pgClient.query(sqlCheckTagging, [tagId, contactId]))?.rowCount > 0;
 
       if (!taggingExists) {
-        const sqlInsertLabel = `INSERT INTO taggings (tag_id, taggable_type, taggable_id, context, created_at) 
+        const sqlInsertLabel = `INSERT INTO taggings (tag_id, taggable_type, taggable_id, context, created_at)
                                 VALUES ($1, 'Contact', $2, 'labels', NOW())`;
 
         await this.pgClient.query(sqlInsertLabel, [tagId, contactId]);
@@ -1549,14 +1549,14 @@ export class ChatwootService {
 
     // Use raw SQL to avoid JSON path issues
     await this.prismaRepository.$executeRaw`
-      UPDATE "Message" 
-      SET 
+      UPDATE "Message"
+      SET
         "chatwootMessageId" = ${chatwootMessageIds.messageId},
         "chatwootConversationId" = ${chatwootMessageIds.conversationId},
         "chatwootInboxId" = ${chatwootMessageIds.inboxId},
         "chatwootContactInboxSourceId" = ${chatwootMessageIds.contactInboxSourceId},
         "chatwootIsRead" = ${chatwootMessageIds.isRead || false}
-      WHERE "instanceId" = ${instance.instanceId} 
+      WHERE "instanceId" = ${instance.instanceId}
       AND "key"->>'id' = ${key.id}
     `;
 
@@ -1568,8 +1568,8 @@ export class ChatwootService {
   private async getMessageByKeyId(instance: InstanceDto, keyId: string): Promise<MessageModel> {
     // Use raw SQL query to avoid JSON path issues with Prisma
     const messages = await this.prismaRepository.$queryRaw`
-      SELECT * FROM "Message" 
-      WHERE "instanceId" = ${instance.instanceId} 
+      SELECT * FROM "Message"
+      WHERE "instanceId" = ${instance.instanceId}
       AND "key"->>'id' = ${keyId}
       LIMIT 1
     `;

@@ -1,4 +1,4 @@
-import { ConnectionState, WAConnectionState, WASocket } from 'baileys';
+import { ConnectionState, WAConnectionState, WASocket } from '@nvngroup/pitu';
 import { io, Socket } from 'socket.io-client';
 
 import { ClientToServerEvents, ServerToClientEvents } from './transport.type';

@@ -1,5 +1,5 @@
+import { fetchLatestBaileysVersion, WAVersion } from '@nvngroup/pitu';
 import axios, { AxiosRequestConfig } from 'axios';
-import { fetchLatestBaileysVersion, WAVersion } from 'baileys';
 
 export const fetchLatestWaWebVersion = async (options: AxiosRequestConfig<{}>) => {
   try {

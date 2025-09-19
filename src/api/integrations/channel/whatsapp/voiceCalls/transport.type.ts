@@ -1,4 +1,4 @@
-import { BinaryNode, Contact, JidWithDevice, proto, WAConnectionState } from 'baileys';
+import { BinaryNode, Contact, JidWithDevice, WAConnectionState, waproto as proto } from '@nvngroup/pitu';
 
 export interface ServerToClientEvents {
   withAck: (d: string, callback: (e: number) => void) => void;

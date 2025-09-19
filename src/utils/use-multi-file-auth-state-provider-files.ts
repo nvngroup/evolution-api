@@ -36,7 +36,14 @@
 
 import { ProviderFiles } from '@api/provider/sessions';
 import { Logger } from '@config/logger.config';
-import { AuthenticationCreds, AuthenticationState, BufferJSON, initAuthCreds, proto, SignalDataTypeMap } from 'baileys';
+import {
+  AuthenticationCreds,
+  AuthenticationState,
+  BufferJSON,
+  initAuthCreds,
+  SignalDataTypeMap,
+  waproto as proto,
+} from '@nvngroup/pitu';
 import { isNotEmpty } from 'class-validator';
 
 export type AuthState = { state: AuthenticationState; saveCreds: () => Promise<void> };

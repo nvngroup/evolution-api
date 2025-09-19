@@ -78,17 +78,6 @@ import {
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@exceptions';
 import ffmpegPath from '@ffmpeg-installer/ffmpeg';
 import { Boom } from '@hapi/boom';
-import { createId as cuid } from '@paralleldrive/cuid2';
-import { Instance, Message } from '@prisma/client';
-import { createJid } from '@utils/createJid';
-import { fetchLatestWaWebVersion } from '@utils/fetchLatestWaWebVersion';
-import { makeProxyAgent } from '@utils/makeProxyAgent';
-import { getOnWhatsappCache, saveOnWhatsappCache } from '@utils/onWhatsappCache';
-import { status } from '@utils/renderStatus';
-import useMultiFileAuthStatePrisma from '@utils/use-multi-file-auth-state-prisma';
-import { AuthStateProvider } from '@utils/use-multi-file-auth-state-provider-files';
-import { useMultiFileAuthStateRedisDb } from '@utils/use-multi-file-auth-state-redis-db';
-import axios from 'axios';
 import makeWASocket, {
   AnyMessageContent,
   BufferedEventData,
@@ -111,7 +100,7 @@ import makeWASocket, {
   isJidBroadcast,
   isJidGroup,
   isJidNewsletter,
-  isPnUser,
+  isJidUser as isPnUser,
   makeCacheableSignalKeyStore,
   MessageUpsertType,
   MessageUserReceiptUpdate,
@@ -119,17 +108,28 @@ import makeWASocket, {
   ParticipantAction,
   prepareWAMessageMedia,
   Product,
-  proto,
   UserFacingSocketConfig,
   WABrowserDescription,
   WAMediaUpload,
   WAMessage,
   WAMessageKey,
   WAPresence,
+  waproto as proto,
   WASocket,
-} from 'baileys';
-import { Label } from 'baileys/lib/Types/Label';
-import { LabelAssociation } from 'baileys/lib/Types/LabelAssociation';
+} from '@nvngroup/pitu';
+import { Label } from '@nvngroup/pitu/lib/Types/Label';
+import { LabelAssociation } from '@nvngroup/pitu/lib/Types/LabelAssociation';
+import { createId as cuid } from '@paralleldrive/cuid2';
+import { Instance, Message } from '@prisma/client';
+import { createJid } from '@utils/createJid';
+import { fetchLatestWaWebVersion } from '@utils/fetchLatestWaWebVersion';
+import { makeProxyAgent } from '@utils/makeProxyAgent';
+import { getOnWhatsappCache, saveOnWhatsappCache } from '@utils/onWhatsappCache';
+import { status } from '@utils/renderStatus';
+import useMultiFileAuthStatePrisma from '@utils/use-multi-file-auth-state-prisma';
+import { AuthStateProvider } from '@utils/use-multi-file-auth-state-provider-files';
+import { useMultiFileAuthStateRedisDb } from '@utils/use-multi-file-auth-state-redis-db';
+import axios from 'axios';
 import { spawn } from 'child_process';
 import { isArray, isBase64, isURL } from 'class-validator';
 import { randomBytes } from 'crypto';
@@ -500,8 +500,8 @@ export class BaileysStartupService extends ChannelStartupService {
     try {
       // Use raw SQL to avoid JSON path issues
       const webMessageInfo = (await this.prismaRepository.$queryRaw`
-        SELECT * FROM "Message" 
-        WHERE "instanceId" = ${this.instanceId} 
+        SELECT * FROM "Message"
+        WHERE "instanceId" = ${this.instanceId}
         AND "key"->>'id' = ${key.id}
       `) as proto.IWebMessageInfo[];
 
@@ -1437,10 +1437,6 @@ export class BaileysStartupService extends ChannelStartupService {
           continue;
         }
 
-        if (key.remoteJid?.includes('@lid') && key.remoteJidAlt) {
-          key.remoteJid = key.remoteJidAlt;
-        }
-
         const updateKey = `${this.instance.id}_${key.id}_${update.status}`;
 
         const cached = await this.baileysCache.get(updateKey);
@@ -1491,8 +1487,8 @@ export class BaileysStartupService extends ChannelStartupService {
           if (configDatabaseData.HISTORIC || configDatabaseData.NEW_MESSAGE) {
             // Use raw SQL to avoid JSON path issues
             const messages = (await this.prismaRepository.$queryRaw`
-              SELECT * FROM "Message" 
-              WHERE "instanceId" = ${this.instanceId} 
+              SELECT * FROM "Message"
+              WHERE "instanceId" = ${this.instanceId}
               AND "key"->>'id' = ${key.id}
               LIMIT 1
             `) as any[];
@@ -3310,9 +3306,13 @@ export class BaileysStartupService extends ChannelStartupService {
 
       const verify = await this.client.onWhatsApp(...filteredNumbers);
       console.log('verify', verify);
+
+      // Handle the case where onWhatsApp returns {} or undefined instead of an array
+      const verifyArray = Array.isArray(verify) ? verify : [];
+
       normalVerifiedUsers = await Promise.all(
         normalUsers.map(async (user) => {
-          let numberVerified: (typeof verify)[0] | null = null;
+          let numberVerified: any = null;
 
           const cached = cachedNumbers.find((cached) => cached.jidOptions.includes(user.jid.replace('+', '')));
           if (cached) {
@@ -3334,8 +3334,9 @@ export class BaileysStartupService extends ChannelStartupService {
             const numberWithoutDigit =
               user.number.length === 12 ? user.number : user.number.slice(0, 4) + user.number.slice(5);
 
-            numberVerified = verify.find(
-              (v) => v.jid === `${numberWithDigit}@s.whatsapp.net` || v.jid === `${numberWithoutDigit}@s.whatsapp.net`,
+            numberVerified = verifyArray.find(
+              (v: any) =>
+                v?.jid === `${numberWithDigit}@s.whatsapp.net` || v?.jid === `${numberWithoutDigit}@s.whatsapp.net`,
             );
           }
 
@@ -3357,13 +3358,14 @@ export class BaileysStartupService extends ChannelStartupService {
             const numberWithoutDigit =
               user.number.length === 12 ? user.number : user.number.slice(0, 2) + user.number.slice(3);
 
-            numberVerified = verify.find(
-              (v) => v.jid === `${numberWithDigit}@s.whatsapp.net` || v.jid === `${numberWithoutDigit}@s.whatsapp.net`,
+            numberVerified = verifyArray.find(
+              (v: any) =>
+                v?.jid === `${numberWithDigit}@s.whatsapp.net` || v?.jid === `${numberWithoutDigit}@s.whatsapp.net`,
             );
           }
 
           if (!numberVerified) {
-            numberVerified = verify.find((v) => v.jid === user.jid);
+            numberVerified = verifyArray.find((v: any) => v?.jid === user.jid);
           }
 
           const numberJid = numberVerified?.jid || user.jid;
@@ -4461,7 +4463,7 @@ export class BaileysStartupService extends ChannelStartupService {
 
     // Use raw SQL to avoid JSON path issues
     const result = await this.prismaRepository.$executeRaw`
-      UPDATE "Message" 
+      UPDATE "Message"
       SET "status" = ${status[4]}
       WHERE "instanceId" = ${this.instanceId}
       AND "key"->>'remoteJid' = ${remoteJid}
@@ -4486,7 +4488,7 @@ export class BaileysStartupService extends ChannelStartupService {
       this.prismaRepository.chat.findFirst({ where: { remoteJid } }),
       // Use raw SQL to avoid JSON path issues
       this.prismaRepository.$queryRaw`
-        SELECT COUNT(*)::int as count FROM "Message" 
+        SELECT COUNT(*)::int as count FROM "Message"
         WHERE "instanceId" = ${this.instanceId}
         AND "key"->>'remoteJid' = ${remoteJid}
         AND ("key"->>'fromMe')::boolean = false
@@ -4552,6 +4554,7 @@ export class BaileysStartupService extends ChannelStartupService {
   public async baileysOnWhatsapp(jid: string) {
     const response = await this.client.onWhatsApp(jid);
 
+    // Handle the case where onWhatsApp returns {} or undefined instead of expected format
     return response;
   }
 

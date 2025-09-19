@@ -12,9 +12,9 @@ import { Events, wa } from '@api/types/wa.types';
 import { Auth, Chatwoot, ConfigService, HttpServer, Proxy } from '@config/env.config';
 import { Logger } from '@config/logger.config';
 import { NotFoundException } from '@exceptions';
+import { WASocket } from '@nvngroup/pitu';
 import { Contact, Message, Prisma } from '@prisma/client';
 import { createJid } from '@utils/createJid';
-import { WASocket } from 'baileys';
 import { isArray } from 'class-validator';
 import EventEmitter2 from 'eventemitter2';
 import { v4 } from 'uuid';
@@ -734,16 +734,16 @@ export class ChannelStartupService {
 
     const results = await this.prismaRepository.$queryRaw`
       WITH rankedMessages AS (
-        SELECT DISTINCT ON ("Message"."key"->>'remoteJid') 
+        SELECT DISTINCT ON ("Message"."key"->>'remoteJid')
           "Contact"."id" as "contactId",
           "Message"."key"->>'remoteJid' as "remoteJid",
-          CASE 
+          CASE
             WHEN "Message"."key"->>'remoteJid' LIKE '%@g.us' THEN COALESCE("Chat"."name", "Contact"."pushName")
             ELSE COALESCE("Contact"."pushName", "Message"."pushName")
           END as "pushName",
           "Contact"."profilePicUrl",
           COALESCE(
-            to_timestamp("Message"."messageTimestamp"::double precision), 
+            to_timestamp("Message"."messageTimestamp"::double precision),
             "Contact"."updatedAt"
           ) as "updatedAt",
           "Chat"."name" as "pushName",
@@ -774,7 +774,7 @@ export class ChannelStartupService {
         ${timestampFilter}
         ORDER BY "Message"."key"->>'remoteJid', "Message"."messageTimestamp" DESC
       )
-      SELECT * FROM rankedMessages 
+      SELECT * FROM rankedMessages
       ORDER BY "updatedAt" DESC NULLS LAST
       ${limit}
       ${offset};

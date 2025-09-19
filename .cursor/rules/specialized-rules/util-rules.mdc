@@ -32,7 +32,7 @@ export default utilityFunction;
 
 ### Multi-File Auth State Pattern
 ```typescript
-import { AuthenticationState } from 'baileys';
+import { AuthenticationState } from '@nvngroup/pitu';
 import { CacheService } from '@api/services/cache.service';
 import fs from 'fs/promises';
 import path from 'path';
@@ -159,7 +159,7 @@ const getTypeMessage = (msg: any): any => {
 
 const getMessageContent = (type: string, msg?: any): string => {
   const typeKey = type?.replace('Message', '');
-  
+
   const types = {
     conversation: msg?.message?.conversation,
     extendedTextMessage: msg?.message?.extendedTextMessage?.text,
@@ -178,7 +178,7 @@ const getMessageContent = (type: string, msg?: any): string => {
   };
 
   let result = types[typeKey] || types[type] || 'Unknown';
-  
+
   if (!result || result === 'Unknown') {
     result = JSON.stringify(msg);
   }
@@ -196,7 +196,7 @@ export const createJid = (number: string): string => {
 
   // Remove any non-numeric characters except +
   let cleanNumber = number.replace(/[^\d+]/g, '');
-  
+
   // Remove + if present
   if (cleanNumber.startsWith('+')) {
     cleanNumber = cleanNumber.substring(1);
@@ -281,7 +281,7 @@ export async function saveOnWhatsappCache(params: ISaveOnWhatsappCacheParams): P
 
   try {
     const numbersAvailable = getAvailableNumbers(remoteJid);
-    
+
     const existingContact = await prismaRepository.contact.findFirst({
       where: {
         OR: numbersAvailable.map(number => ({ id: number })),
@@ -383,7 +383,7 @@ type Proxy = {
 
 function selectProxyAgent(proxyUrl: string): HttpsProxyAgent<string> | SocksProxyAgent {
   const url = new URL(proxyUrl);
-  
+
   if (url.protocol === 'socks4:' || url.protocol === 'socks5:') {
     return new SocksProxyAgent(proxyUrl);
   } else {
@@ -397,11 +397,11 @@ export function makeProxyAgent(proxy: Proxy): HttpsProxyAgent<string> | SocksPro
   }
 
   let proxyUrl = `${proxy.protocol}://`;
-  
+
   if (proxy.username && proxy.password) {
     proxyUrl += `${proxy.username}:${proxy.password}@`;
   }
-  
+
   proxyUrl += `${proxy.host}:${proxy.port}`;
 
   try {
@@ -504,7 +504,7 @@ export function findBotByTrigger(
 ): any | null {
   for (const bot of bots) {
     if (!bot.enabled) continue;
-    
+
     // Check ignore list
     if (bot.ignoreJids && bot.ignoreJids.includes(remoteJid)) {
       continue;
@@ -595,11 +595,11 @@ export class ServerUP {
 
   public async waitForServer(timeout: number = 30000): Promise<boolean> {
     const startTime = Date.now();
-    
+
     while (!this.isServerUp && (Date.now() - startTime) < timeout) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     return this.isServerUp;
   }
 }
@@ -611,7 +611,7 @@ export class ServerUP {
 ```typescript
 export function createMetaErrorResponse(error: any, context: string) {
   const timestamp = new Date().toISOString();
-  
+
   if (error.response?.data) {
     return {
       status: error.response.status || 500,

@@ -39,7 +39,7 @@ export class InstanceDto extends IntegrationDto {
   ownerJid?: string;
   profileName?: string;
   profilePicUrl?: string;
-  
+
   // Settings
   rejectCall?: boolean;
   msgCall?: string;
@@ -49,14 +49,14 @@ export class InstanceDto extends IntegrationDto {
   readStatus?: boolean;
   syncFullHistory?: boolean;
   wavoipToken?: string;
-  
+
   // Proxy settings
   proxyHost?: string;
   proxyPort?: string;
   proxyProtocol?: string;
   proxyUsername?: string;
   proxyPassword?: string;
-  
+
   // Webhook configuration
   webhook?: {
     enabled?: boolean;
@@ -66,7 +66,7 @@ export class InstanceDto extends IntegrationDto {
     byEvents?: boolean;
     base64?: boolean;
   };
-  
+
   // Chatwoot integration
   chatwootAccountId?: string;
   chatwootConversationPending?: boolean;
@@ -292,7 +292,7 @@ export class ValidatedDto {
 ### Prisma Type Integration
 ```typescript
 import { JsonValue } from '@prisma/client/runtime/library';
-import { WAPresence } from 'baileys';
+import { WAPresence } from '@nvngroup/pitu';
 import { TriggerOperator, TriggerType } from '@prisma/client';
 
 export class TypeSafeDto {
@@ -314,19 +314,19 @@ export class TypeSafeDto {
 export class TemplateDto {
   /** Template name - must be unique */
   name: string;
-  
+
   /** Template category (MARKETING, UTILITY, AUTHENTICATION) */
   category: string;
-  
+
   /** Whether category can be changed after creation */
   allowCategoryChange: boolean;
-  
+
   /** Language code (e.g., 'pt_BR', 'en_US') */
   language: string;
-  
+
   /** Template components (header, body, footer, buttons) */
   components: any;
-  
+
   /** Optional webhook URL for template status updates */
   webhookUrl?: string;
 }

@@ -2,7 +2,7 @@ import { prismaRepository } from '@api/server.module';
 import { CacheService } from '@api/services/cache.service';
 import { CacheConf, configService } from '@config/env.config';
 import { INSTANCE_DIR } from '@config/path.config';
-import { AuthenticationState, BufferJSON, initAuthCreds, WAProto as proto } from 'baileys';
+import { AuthenticationState, BufferJSON, initAuthCreds, WAProto as proto } from '@nvngroup/pitu';
 import fs from 'fs/promises';
 import path from 'path';
 

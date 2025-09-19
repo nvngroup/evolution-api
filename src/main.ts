@@ -46,7 +46,7 @@ async function bootstrap() {
 
   app.use(
     cors({
-      origin(requestOrigin, callback) {
+      origin: (requestOrigin: any, callback: any) => {
         const { ORIGIN } = configService.get<Cors>('CORS');
         if (ORIGIN.includes('*')) {
           return callback(null, true);
@@ -59,10 +59,11 @@ async function bootstrap() {
       methods: [...configService.get<Cors>('CORS').METHODS],
       credentials: configService.get<Cors>('CORS').CREDENTIALS,
     }),
-    urlencoded({ extended: true, limit: '136mb' }),
-    json({ limit: '136mb' }),
-    compression(),
   );
+
+  app.use(urlencoded({ extended: true, limit: '136mb' }));
+  app.use(json({ limit: '136mb' }));
+  app.use(compression() as any);
 
   app.set('view engine', 'hbs');
   app.set('views', join(ROOT_DIR, 'views'));

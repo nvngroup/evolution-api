@@ -2,9 +2,9 @@ import { PrismaRepository } from '@api/repository/repository.service';
 import { WAMonitoringService } from '@api/services/monitor.service';
 import { Integration } from '@api/types/wa.types';
 import { ConfigService, HttpServer } from '@config/env.config';
+import { downloadMediaMessage } from '@nvngroup/pitu';
 import { Evoai, EvoaiSetting, IntegrationSession } from '@prisma/client';
 import axios from 'axios';
-import { downloadMediaMessage } from 'baileys';
 import { isURL } from 'class-validator';
 import { v4 as uuidv4 } from 'uuid';
 

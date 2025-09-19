@@ -5,8 +5,8 @@ import { ChatwootService } from '@api/integrations/chatbot/chatwoot/services/cha
 import { Chatwoot, configService } from '@config/env.config';
 import { Logger } from '@config/logger.config';
 import { inbox } from '@figuro/chatwoot-sdk';
+import { waproto as proto } from '@nvngroup/pitu';
 import { Chatwoot as ChatwootModel, Contact, Message } from '@prisma/client';
-import { proto } from 'baileys';
 
 type ChatwootUser = {
   user_type: string;
@@ -370,7 +370,7 @@ class ChatwootImport {
     const sqlFromChatwoot = `WITH
               phone_number AS (
                 SELECT phone_number, created_at::INTEGER, last_activity_at::INTEGER FROM (
-                  VALUES 
+                  VALUES
                    ${phoneNumberBind}
                  ) as t (phone_number, created_at, last_activity_at)
               ),
@@ -381,7 +381,7 @@ class ChatwootImport {
                   SELECT phone_number
                   FROM contacts
                     JOIN contact_inboxes ci ON ci.contact_id = contacts.id AND ci.inbox_id = $2
-                    JOIN conversations con ON con.contact_inbox_id = ci.id 
+                    JOIN conversations con ON con.contact_inbox_id = ci.id
                       AND con.account_id = $1
                       AND con.inbox_id = $2
                       AND con.contact_id = contacts.id
@@ -401,7 +401,7 @@ class ChatwootImport {
               new_contact_inbox AS (
                 INSERT INTO contact_inboxes (contact_id, inbox_id, source_id, created_at, updated_at)
                 SELECT new_contact.id, $2, gen_random_uuid(), new_contact.created_at, new_contact.updated_at
-                FROM new_contact 
+                FROM new_contact
                 RETURNING id, contact_id, created_at, updated_at
               ),
 
@@ -415,7 +415,7 @@ class ChatwootImport {
               )
 
               SELECT new_contact.phone_number, new_conversation.contact_id, new_conversation.id AS conversation_id
-              FROM new_conversation 
+              FROM new_conversation
               JOIN new_contact ON new_conversation.contact_id = new_contact.id
 
               UNION

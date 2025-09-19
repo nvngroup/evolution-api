@@ -1,11 +1,11 @@
 import {
-  proto,
   WAPresence,
   WAPrivacyGroupAddValue,
   WAPrivacyOnlineValue,
   WAPrivacyValue,
+  waproto as proto,
   WAReadReceiptsValue,
-} from 'baileys';
+} from '@nvngroup/pitu';
 
 export class OnWhatsAppDto {
   constructor(
